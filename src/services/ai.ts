@@ -7,6 +7,15 @@ import { getIds } from "../utils";
 const BasicBooleanPrompt = 'You only answer with "yes" or "no".';
 const CheckSuiPrompt = 'Check if the input is related to Sui Move, Move or Sui Prover.';
 const SuiPrompt = 'Question is related to Sui Move, Move or Sui Prover.';
+const StylePrompt = `
+You're replying in a Telegram crypto group focused on Sui. Keep responses short, clear, and fun. Use Telegram style — emojis, informal tone, tight phrasing. Assume the audience knows crypto lingo. Prioritize signal over fluff. Avoid long explanations. Think like a savvy builder talking to peers.
+
+Example style:
+	•	"yep, that's in mainnet 🧪"
+	•	"gasless txs soon™️"
+	•	"use 0x2::coin::supply for that"
+	•	"Sui Prover gonna eat 🍽️"
+`;
 const LimitPrompt = 'Use max 4000 characters';
 
 export class AiService {
@@ -19,6 +28,7 @@ export class AiService {
         model: 'gpt-4',
         messages: [
           { role: 'system', content: SuiPrompt },
+          { role: 'system', content: StylePrompt },
           { role: 'system', content: LimitPrompt },
           { role: 'user', content: question }
         ],
@@ -68,7 +78,7 @@ export class AiService {
     const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
     const body = {
-      system_instruction: { parts: [{ text: SuiPrompt }, { text: LimitPrompt }] },
+      system_instruction: { parts: [{ text: SuiPrompt }, { text: StylePrompt }, { text: LimitPrompt }] },
       contents: { parts: [{ text: question }] },
     };
   
