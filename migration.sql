@@ -1,7 +1,7 @@
 create table visitor
 (
     id         serial constraint visitor_pk primary key,
-    tid        int  not null,
+    tid        bigint  not null,
     username   varchar(255),
     is_group   boolean not null,
     created_at timestamp default now() not null
@@ -16,7 +16,7 @@ create unique index visitor_tid_uindex
 create table visitor_history
 (
     id         serial constraint visitor_history_pk primary key,
-    tid        int  not null,
+    tid        bigint  not null,
     question   text not null,
     answer     text not null,
     created_at timestamp default now() not null
@@ -28,7 +28,7 @@ create unique index visitor_history_id_uindex
 create table general_log
 (
     id         serial constraint general_log_pk primary key,
-    tid        int  not null,
+    tid        bigint  not null,
     action     text not null,
     text       text not null,
     result     text not null,
