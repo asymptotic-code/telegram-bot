@@ -6,7 +6,7 @@ import { getIds } from "../utils";
 import { Entities } from "../types";
 
 const BasicBooleanPrompt = 'You only answer with "yes" or "no".';
-const CheckSuiPrompt = 'Check if the input is related to Sui Move, Move or Sui Prover.';
+const CheckSuiPrompt = 'Check if the input is related to Blockchain, Computer Science, AI,  Sui Move, Move or Sui Prover.';
 const CheckDiscussion = 'Check if the question is related to discussion.';
 const SuiPrompt = 'Question is related to Sui Move, Move or Sui Prover.';
 const StylePrompt = `
@@ -178,7 +178,7 @@ export class AiService {
       const history = await getLastHistory(this.knex, userId, 25);
 
       console.log('History:', history.slice(0, 3));
-      let shouldAnswer = true; //await this.askBoolean(msg.text, [history.length ? CheckDiscussion : CheckSuiPrompt], history.slice(0, 10));
+      let shouldAnswer = await this.askBoolean(msg.text, [history.length ? CheckDiscussion : CheckSuiPrompt], history.slice(0, 10));
       if (!shouldAnswer) {
         shouldAnswer = await this.askBoolean(msg.text, [CheckSuiPrompt]);
       }
