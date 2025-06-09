@@ -23,6 +23,16 @@ const LimitPrompt = 'Use max 4000 characters';
 export class AiService {
   constructor(private knex: Knex, private bot: TelegramBot) { }
 
+  private askLocal = async (question: string, session: string): Promise<string> => {
+    const url = 'http://127.0.0.1:8888/agent';
+
+    const body = { question, session };
+
+    const response = await axios.post(url, body, { headers: { 'Content-Type': 'application/json', "X-API-KEY": "***" } });
+
+    return response.data.answer.trim();
+  }
+
   private askGpt = async (question: string): Promise<string> => {
     const url = 'https://api.openai.com/v1/chat/completions';
 
@@ -139,8 +149,9 @@ export class AiService {
     }
   };
 
-  private ask = async (question: string, history?: Entities.UserHistory[]): Promise<string> => {
-    const result = await this.askGemini(question, history || []);
+  private ask = async (question: string, chatId: number, history?: Entities.UserHistory[]): Promise<string> => {
+    //const result = await this.askGemini(question, history || []);
+    const result = await this.askLocal(question, chatId.toString());
     console.log('Ask result:', result);
     return result;
   };
@@ -167,7 +178,7 @@ export class AiService {
       const history = await getLastHistory(this.knex, userId, 25);
 
       console.log('History:', history.slice(0, 3));
-      let shouldAnswer = await this.askBoolean(msg.text, [history.length ? CheckDiscussion : CheckSuiPrompt], history.slice(0, 10));
+      let shouldAnswer = true; //await this.askBoolean(msg.text, [history.length ? CheckDiscussion : CheckSuiPrompt], history.slice(0, 10));
       if (!shouldAnswer) {
         shouldAnswer = await this.askBoolean(msg.text, [CheckSuiPrompt]);
       }
@@ -175,7 +186,7 @@ export class AiService {
         if (!shouldAnswer) return; // ignore non-sui messages in group
         let [newMessage, result] = await Promise.all([
           this.bot.sendMessage(chatId, 'Answering...', { reply_to_message_id: msg.message_id }),
-          this.ask(msg.text, history),
+          this.ask(msg.text, chatId, history),
         ]);
         if (result.length > 4050) {
           result = result.slice(0, 4050) + '\n...';
@@ -188,7 +199,7 @@ export class AiService {
           return;
         }
 
-        const result = await this.ask(msg.text, history);
+        const result = await this.ask(msg.text, chatId, history);
         if (result.length > 4050) {
           await this.sendLongMessage(chatId, result);
         } else {
