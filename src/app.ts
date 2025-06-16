@@ -1,9 +1,11 @@
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import TelegramBot from 'node-telegram-bot-api';
 import { botMain } from './main';
 import knex from 'knex';
 import fs from 'fs';
 
-export const telegramApp = (): void => {
+export const telegramApp = async (): Promise<void> => {
   try {
     const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
@@ -22,7 +24,23 @@ export const telegramApp = (): void => {
       }
     });
 
-    botMain(bot, knexdb);
+    const client = new Client(
+      {
+        name: "example-client",
+        version: "1.0.0",
+      },
+      {
+        capabilities: {},
+      },
+    );
+
+    const transport = new StreamableHTTPClientTransport(
+      new URL(process.env.MCP_SERVER_URL),
+    );
+
+    await client.connect(transport);
+
+    botMain(bot, knexdb, client);
   } catch (e) {
     console.warn(`Telegram error: ${e}`);
   }
