@@ -16,13 +16,12 @@ jobs:
 
       - name: Setup SSH key
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          echo "${{ secrets.EC2_SSH_KEY }}" > aws-keypair.pem
+          chmod 400 aws-keypair.pem
 
       - name: Deploy to EC2
         run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            sudo sh bot-installer.sh
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} -i "aws-keypair.pem" << 'EOF'
+            sudo su
+            sh bot-installer.sh
           EOF
