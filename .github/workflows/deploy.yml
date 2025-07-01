@@ -18,6 +18,7 @@ jobs:
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > aws-keypair.pem
           chmod 400 aws-keypair.pem
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
         run: |
