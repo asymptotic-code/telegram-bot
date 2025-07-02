@@ -42,14 +42,8 @@ export class AiService {
   }
 
   private mcpConversation = async (question: string, session: string): Promise<string> => {
-    try {
-      await this.createMcpSession(session); // TODO; get better way to check if session exists
-    } catch (e) {
-      console.warn(`MCP session creation error: ${e}`);
-    }
-
     const res = await this.mcpClient.callTool({
-      name: "conversation",
+      name: "conversation_tool",
       arguments: {
         message: question,
         session,
